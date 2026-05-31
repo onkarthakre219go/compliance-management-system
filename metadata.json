@@ -1,0 +1,6 @@
+{
+  "name": "Compliance Management System",
+  "description": "A comprehensive system for CA/CS firms to manage clients, tasks, compliance calendars, invoicing, and reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
