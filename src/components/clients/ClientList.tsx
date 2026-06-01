@@ -304,13 +304,12 @@ export default function ClientList({ onAdd, onEdit, onView, teammates, showFeedb
               onChange={handleFilterChange(setFilterConstitution)}
             >
               <MenuItem value="">All Constitutions</MenuItem>
-              <MenuItem value="Individual">Individual</MenuItem>
-              <MenuItem value="Proprietorship">Proprietorship</MenuItem>
-              <MenuItem value="Partnership">Partnership</MenuItem>
+              <MenuItem value="Pvt Ltd">Pvt Ltd</MenuItem>
+              <MenuItem value="Public Ltd">Public Ltd</MenuItem>
               <MenuItem value="LLP">LLP</MenuItem>
-              <MenuItem value="Private Limited">Private Limited</MenuItem>
-              <MenuItem value="Public Limited">Public Limited</MenuItem>
-              <MenuItem value="Trust">Trust</MenuItem>
+              <MenuItem value="OPC">OPC</MenuItem>
+              <MenuItem value="Partnership">Partnership</MenuItem>
+              <MenuItem value="Proprietorship">Proprietorship</MenuItem>
             </TextField>
           </Grid>
           <Grid size={{ xs: 6, sm: 3, md: 1.5 }}>

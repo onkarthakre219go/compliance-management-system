@@ -168,7 +168,7 @@ export default function ClientBulkImport({ onBack, onImportSuccess, showFeedback
     if (!record.constitution) {
       errors.push('Legal Constitution configuration is blank.');
     } else {
-      const validConstitutions = ['Individual', 'Proprietorship', 'Partnership', 'LLP', 'Private Limited', 'Public Limited', 'Trust'];
+      const validConstitutions = ['Pvt Ltd', 'Public Ltd', 'LLP', 'OPC', 'Partnership', 'Proprietorship', 'Private Limited', 'Public Limited', 'Trust', 'Individual'];
       const matched = validConstitutions.some(v => v.toLowerCase() === record.constitution.toLowerCase());
       if (!matched) {
         errors.push(`Invalid Legal Constitution ("${record.constitution}"). Expected: ${validConstitutions.join('/')}`);

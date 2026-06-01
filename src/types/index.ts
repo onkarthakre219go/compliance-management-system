@@ -49,7 +49,7 @@ export interface Client {
   _id: string;
   name: string;
   tradeName?: string;
-  constitution: 'Proprietorship' | 'Partnership' | 'LLP' | 'Private Limited' | 'Public Limited' | 'Trust' | 'Individual';
+  constitution: 'Proprietorship' | 'Partnership' | 'LLP' | 'Pvt Ltd' | 'Public Ltd' | 'OPC' | 'Private Limited' | 'Public Limited' | 'Trust' | 'Individual';
   pan: string;
   gstType: 'Regular' | 'Composition' | 'Unregistered' | 'None';
   filingFrequency: 'Monthly' | 'Quarterly' | 'None';

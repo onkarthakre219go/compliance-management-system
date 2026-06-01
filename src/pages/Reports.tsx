@@ -15,8 +15,10 @@ import {
   TableRow,
   Typography,
   Chip,
+  Divider,
 } from '@mui/material';
 import { reportsApi } from '../api/reports';
+import ReportExport from '../components/ReportExport';
 
 type ReportType = 'active' | 'inactive' | 'grade' | 'government-pending' | 'professional-pending';
 
@@ -249,6 +251,20 @@ export default function Reports() {
 
         {error && (
           <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>
+        )}
+
+        {!loading && !error && (
+          <Box sx={{ mb: 3, pb: 2, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 600 }}>
+              Export Options
+            </Typography>
+            <ReportExport
+              reportType={activeReport}
+              reportTitle={reportTitle}
+              filters={{ grade: gradeFilter || undefined }}
+              disabled={loading}
+            />
+          </Box>
         )}
 
         {!loading && !error && (

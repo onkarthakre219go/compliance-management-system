@@ -42,7 +42,7 @@ interface ClientFormProps {
 interface ClientFormInput {
   name: string;
   tradeName: string;
-  constitution: 'Proprietorship' | 'Partnership' | 'LLP' | 'Private Limited' | 'Public Limited' | 'Trust' | 'Individual';
+  constitution: 'Proprietorship' | 'Partnership' | 'LLP' | 'Pvt Ltd' | 'Public Ltd' | 'OPC' | 'Private Limited' | 'Public Limited' | 'Trust' | 'Individual';
   pan: string;
   gstType: 'Regular' | 'Composition' | 'Unregistered' | 'None';
   filingFrequency: 'Monthly' | 'Quarterly' | 'None';
@@ -68,7 +68,7 @@ export default function ClientForm({ client, teammates, onCancel, onSaveSuccess,
     defaultValues: {
       name: '',
       tradeName: '',
-      constitution: 'Individual',
+      constitution: 'Pvt Ltd',
       pan: '',
       gstType: 'None',
       filingFrequency: 'None',
@@ -282,13 +282,12 @@ export default function ClientForm({ client, teammates, onCancel, onSaveSuccess,
                         id="form-select-constitution"
                         {...field}
                       >
-                        <MenuItem value="Individual">Individual</MenuItem>
-                        <MenuItem value="Proprietorship">Proprietorship</MenuItem>
-                        <MenuItem value="Partnership">Partnership</MenuItem>
+                        <MenuItem value="Pvt Ltd">Pvt Ltd</MenuItem>
+                        <MenuItem value="Public Ltd">Public Ltd</MenuItem>
                         <MenuItem value="LLP">LLP</MenuItem>
-                        <MenuItem value="Private Limited">Limited / Private Limited</MenuItem>
-                        <MenuItem value="Public Limited">Public Limited</MenuItem>
-                        <MenuItem value="Trust">Trust Agency / NGO</MenuItem>
+                        <MenuItem value="OPC">OPC</MenuItem>
+                        <MenuItem value="Partnership">Partnership</MenuItem>
+                        <MenuItem value="Proprietorship">Proprietorship</MenuItem>
                       </TextField>
                     )}
                   />

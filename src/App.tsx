@@ -7,6 +7,7 @@ import { CssBaseline } from '@mui/material';
 import { store } from './store';
 import { theme } from './theme/theme';
 import Layout from './components/Layout';
+import LoginPage from './pages/LoginPage';
 
 import ClientsManagement from './pages/ClientsManagement';
 import TasksManagement from './pages/TasksManagement';
@@ -14,6 +15,7 @@ import InvoicesManagement from './pages/InvoicesManagement';
 import ComplianceCalendar from './pages/ComplianceCalendar';
 import Reports from './pages/Reports';
 import NotFound from './pages/NotFound';
+import RegisterPage from './pages/RegisterPage';
 
 export default function App() {
   return (
@@ -22,6 +24,8 @@ export default function App() {
         <CssBaseline />
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Navigate to="/clients" replace />} />
               <Route path="clients" element={<ClientsManagement />} />
