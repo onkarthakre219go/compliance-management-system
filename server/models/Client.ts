@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 export interface IClient extends Document {
   name: string;
   tradeName?: string;
-  constitution: 'Proprietorship' | 'Partnership' | 'LLP' | 'Private Limited' | 'Public Limited' | 'Trust' | 'Individual';
+  constitution: 'Proprietorship' | 'Partnership' | 'LLP' | 'Pvt Ltd' | 'Public Ltd' | 'OPC' | 'Private Limited' | 'Public Limited' | 'Trust' | 'Individual';
   pan: string;
   gstType: 'Regular' | 'Composition' | 'Unregistered' | 'None';
   filingFrequency: 'Monthly' | 'Quarterly' | 'None';
@@ -31,8 +31,8 @@ const ClientSchema: Schema = new Schema(
     constitution: {
       type: String,
       required: true,
-      enum: ['Proprietorship', 'Partnership', 'LLP', 'Private Limited', 'Public Limited', 'Trust', 'Individual'],
-      default: 'Individual'
+      enum: ['Pvt Ltd', 'Public Ltd', 'LLP', 'OPC', 'Partnership', 'Proprietorship', 'Private Limited', 'Public Limited', 'Trust', 'Individual'],
+      default: 'Pvt Ltd'
     },
     pan: {
       type: String,

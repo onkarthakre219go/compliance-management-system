@@ -819,7 +819,7 @@ export async function bulkImportClients(req: Request, res: Response, next: NextF
             throw new Error('Entity legal Constitution is mandatory.');
           }
           
-          const validConstitutions = ['Proprietorship', 'Partnership', 'LLP', 'Private Limited', 'Public Limited', 'Trust', 'Individual'];
+          const validConstitutions = ['Pvt Ltd', 'Public Ltd', 'LLP', 'OPC', 'Partnership', 'Proprietorship', 'Private Limited', 'Public Limited', 'Trust', 'Individual'];
           const normConstitution = validConstitutions.find(
             item => item.toLowerCase() === c.constitution.trim().toLowerCase()
           );
@@ -949,7 +949,7 @@ export async function bulkImportClients(req: Request, res: Response, next: NextF
             throw new Error('Entity legal Constitution is mandatory.');
           }
           
-          const validConstitutions = ['Proprietorship', 'Partnership', 'LLP', 'Private Limited', 'Public Limited', 'Trust', 'Individual'];
+          const validConstitutions = ['Pvt Ltd', 'Public Ltd', 'LLP', 'OPC', 'Partnership', 'Proprietorship', 'Private Limited', 'Public Limited', 'Trust', 'Individual'];
           const normConstitution = validConstitutions.find(
             item => item.toLowerCase() === c.constitution.trim().toLowerCase()
           );

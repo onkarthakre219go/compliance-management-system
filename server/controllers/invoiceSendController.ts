@@ -30,12 +30,21 @@ export async function sendInvoice(req: Request, res: Response, next: NextFunctio
       return res.status(500).json({ status: 'error', message: result.message || 'Failed to send email' });
     }
 
-    // Update invoice status to Sent in mockDb or Mongo
+    // Update invoice status to Sent and save reminder rules if provided
+    const updateFields: any = { status: 'Sent' };
+    if (req.body.reminderRules) {
+      updateFields.reminderRules = req.body.reminderRules;
+    }
     if (isDbConnected) {
-      await InvoiceModel.findByIdAndUpdate(id, { status: 'Sent' });
+      await InvoiceModel.findByIdAndUpdate(id, updateFields);
     } else {
       const inv = mockDb.invoices.find((i: any) => i._id === id);
-      if (inv) inv.status = 'Sent';
+      if (inv) {
+        inv.status = 'Sent';
+        if (req.body.reminderRules) {
+          inv.reminderRules = req.body.reminderRules;
+        }
+      }
     }
 
     res.status(200).json({ status: 'success', message: 'Invoice sent', info: result.info || null });

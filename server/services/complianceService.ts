@@ -23,18 +23,20 @@ export class ComplianceService {
    */
   public static mapConstitutionToClientType(constitution: string): 'Pvt Ltd' | 'Public Ltd' | 'LLP' | 'OPC' | 'Partnership' | 'Proprietorship' | null {
     switch (constitution) {
+      case 'Pvt Ltd':
       case 'Private Limited':
         return 'Pvt Ltd';
+      case 'Public Ltd':
       case 'Public Limited':
         return 'Public Ltd';
       case 'LLP':
         return 'LLP';
+      case 'OPC':
+        return 'OPC';
       case 'Partnership':
         return 'Partnership';
       case 'Proprietorship':
         return 'Proprietorship';
-      case 'OPC':
-        return 'OPC';
       default:
         return null;
     }

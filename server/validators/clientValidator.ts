@@ -5,8 +5,8 @@ export const validateClient: ValidatorFunction = (body: any) => {
     return 'Client Name represents standard business identity and cannot be blank.';
   }
   
-  if (!body.constitution || !['Proprietorship', 'Partnership', 'LLP', 'Private Limited', 'Public Limited', 'Trust', 'Individual'].includes(body.constitution)) {
-    return 'Constitution must be a valid legal entity structure (e.g., LLP, Private Limited, Individual).';
+  if (!body.constitution || !['Pvt Ltd', 'Public Ltd', 'LLP', 'OPC', 'Partnership', 'Proprietorship', 'Private Limited', 'Public Limited', 'Trust', 'Individual'].includes(body.constitution)) {
+    return 'Constitution must be a valid legal entity structure (e.g., Pvt Ltd, Public Ltd, LLP, OPC).';
   }
 
   if (!body.pan || typeof body.pan !== 'string') {

@@ -50,7 +50,7 @@ function inferInvoiceFeeType(item: any) {
 
 export async function createInvoice(req: Request, res: Response, next: NextFunction) {
   try {
-    const { clientId, dueDate, items, notes } = req.body;
+    const { clientId, issueDate, dueDate, items, notes } = req.body;
 
     logger.info(`Drafting invoice schedule for client ID: ${clientId}`);
 
@@ -86,15 +86,28 @@ export async function createInvoice(req: Request, res: Response, next: NextFunct
     });
 
     const totalAmount = subtotal + gstAmount;
-    const count = mockDb.invoices.length + 1;
-    const invoiceNumber = `INV/${new Date().getFullYear()}/${String(count).padStart(3, '0')}`;
+    const issueDateValue = issueDate ? new Date(issueDate) : new Date();
+    const validIssueDate = Number.isNaN(issueDateValue.getTime()) ? new Date() : issueDateValue;
+    const dueDateValue = dueDate ? new Date(dueDate) : new Date();
+    const validDueDate = Number.isNaN(dueDateValue.getTime()) ? new Date() : dueDateValue;
+
+    const invoiceYear = validIssueDate.getFullYear();
+    const yearPattern = new RegExp(`^CA-${invoiceYear}-(\\d{4})$`);
+    const highestSequence = mockDb.invoices.reduce((max, invoice) => {
+      const match = String(invoice.invoiceNumber || '').match(yearPattern);
+      if (match) {
+        return Math.max(max, Number(match[1]));
+      }
+      return max;
+    }, 0);
+    const invoiceNumber = `CA-${invoiceYear}-${String(highestSequence + 1).padStart(4, '0')}`;
 
     const newInvoice = {
       _id: `inv_${Date.now()}`,
       invoiceNumber,
       clientId,
-      issueDate: new Date(),
-      dueDate: new Date(dueDate),
+      issueDate: validIssueDate,
+      dueDate: validDueDate,
       items: validatedItems,
       subtotal,
       gstAmount,

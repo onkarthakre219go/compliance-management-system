@@ -6,6 +6,8 @@ import Payment from '../models/Payment';
 import { mockDb } from '../config/mockDb';
 import { BadRequestError } from '../utils/errors';
 import { logger } from '../utils/logger';
+import { ExcelGenerator } from '../utils/excelGenerator';
+import { PDFGenerator } from '../utils/pdfGenerator';
 
 const ClientModel = Client as any;
 const InvoiceModel = Invoice as any;
@@ -199,6 +201,222 @@ export async function getPendingFeeReport(req: Request, res: Response, next: Nex
         invoices: pendingInvoices
       }
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Export client report as Excel
+ */
+export async function exportClientReportExcel(req: Request, res: Response, next: NextFunction) {
+  try {
+    const type = String(req.query.type || '').trim();
+    const grade = String(req.query.grade || '').trim().toUpperCase();
+
+    if (!['active', 'inactive', 'grade'].includes(type)) {
+      throw new BadRequestError('Report type must be one of active, inactive, or grade.');
+    }
+
+    let clients: any[] = [];
+
+    if (isMongoActive()) {
+      logger.info(`Exporting client report to Excel from MongoDB: ${type}`);
+      const queryObj: any = {};
+      if (type === 'active' || type === 'inactive') {
+        queryObj.status = type;
+      }
+      if (type === 'grade' && grade) {
+        queryObj.grade = grade;
+      }
+
+      const results = await ClientModel.find(queryObj).sort({ createdAt: -1 });
+      clients = results.map(normalizeClientForReport);
+    } else {
+      logger.info(`Exporting client report to Excel from memory sandbox: ${type}`);
+      let items = [...mockDb.clients];
+      if (type === 'active' || type === 'inactive') {
+        items = items.filter((client) => client.status === type);
+      }
+      if (type === 'grade' && grade) {
+        items = items.filter((client) => client.grade === grade);
+      }
+      clients = items.map(normalizeClientForReport);
+    }
+
+    const buffer = ExcelGenerator.generateClientReport(clients, type);
+    const filename = `clients-${type}-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Export client report as PDF
+ */
+export async function exportClientReportPDF(req: Request, res: Response, next: NextFunction) {
+  try {
+    const type = String(req.query.type || '').trim();
+    const grade = String(req.query.grade || '').trim().toUpperCase();
+
+    if (!['active', 'inactive', 'grade'].includes(type)) {
+      throw new BadRequestError('Report type must be one of active, inactive, or grade.');
+    }
+
+    let clients: any[] = [];
+
+    if (isMongoActive()) {
+      logger.info(`Exporting client report to PDF from MongoDB: ${type}`);
+      const queryObj: any = {};
+      if (type === 'active' || type === 'inactive') {
+        queryObj.status = type;
+      }
+      if (type === 'grade' && grade) {
+        queryObj.grade = grade;
+      }
+
+      const results = await ClientModel.find(queryObj).sort({ createdAt: -1 });
+      clients = results.map(normalizeClientForReport);
+    } else {
+      logger.info(`Exporting client report to PDF from memory sandbox: ${type}`);
+      let items = [...mockDb.clients];
+      if (type === 'active' || type === 'inactive') {
+        items = items.filter((client) => client.status === type);
+      }
+      if (type === 'grade' && grade) {
+        items = items.filter((client) => client.grade === grade);
+      }
+      clients = items.map(normalizeClientForReport);
+    }
+
+    const buffer = await PDFGenerator.generateClientReport(clients, type);
+    const filename = `clients-${type}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Export pending fees report as Excel
+ */
+export async function exportFeeReportExcel(req: Request, res: Response, next: NextFunction) {
+  try {
+    const type = String(req.query.type || '').trim();
+    if (!['government-pending', 'professional-pending'].includes(type)) {
+      throw new BadRequestError('Fee report type must be government-pending or professional-pending.');
+    }
+
+    const expectedFeeType = type === 'government-pending' ? 'government' : 'professional';
+    const pendingInvoices: any[] = [];
+
+    if (isMongoActive()) {
+      logger.info(`Exporting pending fee report to Excel from MongoDB: ${type}`);
+      const invoices = await InvoiceModel.find({ status: { $nin: ['Paid', 'Void'] } }).sort({ dueDate: 1 }).lean();
+      const payments = await PaymentModel.find({}).lean();
+
+      for (const invoice of invoices) {
+        const hasFeeType = (invoice.items || []).some((item: any) => inferFeeType(item) === expectedFeeType);
+        if (!hasFeeType) continue;
+
+        const client = await ClientModel.findById(invoice.clientId).select('name pan');
+        const clientName = client ? client.name : 'Unknown Client';
+        const amountDue = calculateAmountDue(invoice, payments);
+
+        if (amountDue <= 0) continue;
+        pendingInvoices.push(buildFeeReportItem(invoice, clientName, amountDue, expectedFeeType));
+      }
+    } else {
+      logger.info(`Exporting pending fee report to Excel from memory sandbox: ${type}`);
+      const invoices = [...mockDb.invoices].filter(inv => inv.status !== 'Paid' && inv.status !== 'Void');
+
+      for (const invoice of invoices) {
+        const hasFeeType = (invoice.items || []).some((item: any) => inferFeeType(item) === expectedFeeType);
+        if (!hasFeeType) continue;
+
+        const client = mockDb.clients.find(c => c._id === invoice.clientId);
+        const clientName = client ? client.name : 'Unknown Client';
+        const amountDue = calculateAmountDue(invoice, mockDb.payments);
+
+        if (amountDue <= 0) continue;
+        pendingInvoices.push(buildFeeReportItem(invoice, clientName, amountDue, expectedFeeType));
+      }
+    }
+
+    const buffer = ExcelGenerator.generateFeeReport(pendingInvoices, type);
+    const filename = `pending-fees-${type}-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Export pending fees report as PDF
+ */
+export async function exportFeeReportPDF(req: Request, res: Response, next: NextFunction) {
+  try {
+    const type = String(req.query.type || '').trim();
+    if (!['government-pending', 'professional-pending'].includes(type)) {
+      throw new BadRequestError('Fee report type must be government-pending or professional-pending.');
+    }
+
+    const expectedFeeType = type === 'government-pending' ? 'government' : 'professional';
+    const pendingInvoices: any[] = [];
+
+    if (isMongoActive()) {
+      logger.info(`Exporting pending fee report to PDF from MongoDB: ${type}`);
+      const invoices = await InvoiceModel.find({ status: { $nin: ['Paid', 'Void'] } }).sort({ dueDate: 1 }).lean();
+      const payments = await PaymentModel.find({}).lean();
+
+      for (const invoice of invoices) {
+        const hasFeeType = (invoice.items || []).some((item: any) => inferFeeType(item) === expectedFeeType);
+        if (!hasFeeType) continue;
+
+        const client = await ClientModel.findById(invoice.clientId).select('name pan');
+        const clientName = client ? client.name : 'Unknown Client';
+        const amountDue = calculateAmountDue(invoice, payments);
+
+        if (amountDue <= 0) continue;
+        pendingInvoices.push(buildFeeReportItem(invoice, clientName, amountDue, expectedFeeType));
+      }
+    } else {
+      logger.info(`Exporting pending fee report to PDF from memory sandbox: ${type}`);
+      const invoices = [...mockDb.invoices].filter(inv => inv.status !== 'Paid' && inv.status !== 'Void');
+
+      for (const invoice of invoices) {
+        const hasFeeType = (invoice.items || []).some((item: any) => inferFeeType(item) === expectedFeeType);
+        if (!hasFeeType) continue;
+
+        const client = mockDb.clients.find(c => c._id === invoice.clientId);
+        const clientName = client ? client.name : 'Unknown Client';
+        const amountDue = calculateAmountDue(invoice, mockDb.payments);
+
+        if (amountDue <= 0) continue;
+        pendingInvoices.push(buildFeeReportItem(invoice, clientName, amountDue, expectedFeeType));
+      }
+    }
+
+    const buffer = await PDFGenerator.generateFeeReport(pendingInvoices, type);
+    const filename = `pending-fees-${type}-${new Date().toISOString().split('T')[0]}.pdf`;
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
   } catch (err) {
     next(err);
   }

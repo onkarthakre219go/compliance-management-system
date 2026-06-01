@@ -18,6 +18,10 @@ export interface IInvoice extends Document {
   gstAmount: number;
   totalAmount: number;
   status: 'Draft' | 'Sent' | 'Partially Paid' | 'Paid' | 'Overdue' | 'Void';
+  reminderRules?: {
+    daysBefore?: number[];
+    channel?: 'Email' | 'Sms' | 'App' | 'Email & App';
+  };
   notes?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -95,6 +99,14 @@ const InvoiceSchema: Schema = new Schema(
     notes: {
       type: String,
       trim: true
+    },
+    reminderRules: {
+      type: {
+        daysBefore: [{ type: Number }],
+        channel: { type: String, enum: ['Email', 'Sms', 'App', 'Email & App'] }
+      },
+      required: false,
+      default: undefined
     }
   },
   {
