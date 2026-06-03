@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
   const [firmName, setFirmName] = useState('');
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -16,11 +17,11 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!firmName || !fullName || !email || !password) return setError('Please fill all required fields');
+    if (!firmName || !fullName || !username || !email || !password) return setError('Please fill all required fields');
     if (password !== confirm) return setError('Passwords do not match');
     setLoading(true);
     try {
-      const res = await axios.post('/api/auth/register', { firmName, fullName, email, password });
+      const res = await axios.post('/api/auth/register', { username, firmName, fullName, email, password });
       if (res.data?.status === 'success') {
         navigate('/');
       } else {
@@ -66,11 +67,12 @@ export default function RegisterPage() {
           <input autoComplete="username" name="fake-username" style={{ display: 'none' }} />
           <input autoComplete="new-password" name="fake-password" style={{ display: 'none' }} />
 
-          <TextField label="Firm name" value={firmName} onChange={(e) => setFirmName(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} InputProps={{ sx: { color: '#fff' } }} />
-          <TextField label="Your name" value={fullName} onChange={(e) => setFullName(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} InputProps={{ sx: { color: '#fff' } }} />
-          <TextField label="Email" name="email" autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} InputProps={{ sx: { color: '#fff' } }} />
-          <TextField label="Password" name="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} InputProps={{ sx: { color: '#fff' } }} />
-          <TextField label="Confirm password" name="confirmPassword" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} fullWidth required sx={{ mb: 3, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} InputProps={{ sx: { color: '#fff' } }} />
+          <TextField label="Firm name" value={firmName} onChange={(e) => setFirmName(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} slotProps={{ input: { sx: { color: '#fff' } } }} />
+          <TextField label="Your name" value={fullName} onChange={(e) => setFullName(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} slotProps={{ input: { sx: { color: '#fff' } } }} />
+          <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} fullWidth required helperText="At least 3 characters" sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} slotProps={{ input: { sx: { color: '#fff' } } }} />
+          <TextField label="Email" name="email" autoComplete="off" value={email} onChange={(e) => setEmail(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} slotProps={{ input: { sx: { color: '#fff' } } }} />
+          <TextField label="Password" name="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth required sx={{ mb: 2, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} slotProps={{ input: { sx: { color: '#fff' } } }} />
+          <TextField label="Confirm password" name="confirmPassword" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} fullWidth required sx={{ mb: 3, background: 'rgba(0,0,0,0.25)', borderRadius: 1 }} slotProps={{ input: { sx: { color: '#fff' } } }} />
 
           <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ py: 1.25, textTransform: 'none', fontWeight: 700, bgcolor: '#d4af37', color: '#07203a', '&:hover': { bgcolor: '#b98f2b' } }}>
             {loading ? <CircularProgress size={22} color="inherit" /> : 'Create account'}

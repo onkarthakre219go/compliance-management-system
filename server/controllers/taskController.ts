@@ -45,7 +45,8 @@ export async function getTasks(req: Request, res: Response, next: NextFunction) 
           fullName: user.fullName,
           role: user.role
         } : null,
-        templateName: template ? template.title : null
+        templateName: template ? template.title : null,
+        templateCategory: template ? template.category : null
       };
     });
 
@@ -84,7 +85,8 @@ export async function getTaskById(req: Request, res: Response, next: NextFunctio
             role: user.role,
             email: user.email
           } : null,
-          template: template || null
+          template: template || null,
+          templateCategory: template ? template.category : null
         }
       }
     });

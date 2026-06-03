@@ -18,13 +18,31 @@ export default function TaskDetails({ taskId, onBack, showFeedback }: any) {
   useEffect(() => { load(); }, [taskId]);
 
   const handleAddComment = async () => {
+    if (!commentText.trim()) {
+      showFeedback('error', 'Comment cannot be empty');
+      return;
+    }
+
     try {
-      // in this mock, authorId comes from localStorage user id or fallback
-      const authorId = (localStorage.getItem('cms_session_user') as any) || 'usr_associate';
+      // Parse user from localStorage and extract ID
+      const userStr = localStorage.getItem('cms_session_user');
+      let authorId = 'usr_admin'; // fallback
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          authorId = user.id || user._id || 'usr_admin';
+        } catch (e) {
+          console.warn('Failed to parse user from localStorage', e);
+        }
+      }
+
       await tasksApi.addComment(taskId, { authorId, text: commentText });
       setCommentText('');
       load();
-    } catch (err: any) { showFeedback('error', err.message || 'Failed to add comment'); }
+      showFeedback('success', 'Comment added');
+    } catch (err: any) { 
+      showFeedback('error', err.response?.data?.message || err.message || 'Failed to add comment');
+    }
   };
 
   if (!task) return <Typography>Loading...</Typography>;

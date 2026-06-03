@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box } from '@mui/material';
-import TaskList from '../components/tasks/TaskList';
+import TaskDashboard from './TaskDashboard';
 import TaskForm from '../components/tasks/TaskForm';
 import TaskDetails from '../components/tasks/TaskDetails';
 
@@ -16,7 +16,7 @@ export default function TasksManagement() {
   return (
     <Box sx={{ py: 1 }}>
       {viewMode === 'list' && (
-        <TaskList
+        <TaskDashboard
           onAdd={() => { setSelectedTask(null); setViewMode('add'); }}
           onEdit={(t) => { setSelectedTask(t); setViewMode('edit'); }}
           onView={(t) => { setSelectedTask(t); setViewMode('view'); }}
